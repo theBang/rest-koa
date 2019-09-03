@@ -1,0 +1,17 @@
+doctype html
+html(lang="ru")
+  head
+    title Posts
+    a(href='/css/styles.css', rel='stylesheet')
+  body
+    h1 Posts
+    p You have 
+      strong #{posts.length}! 
+        a(href='/post/new') add post 
+    ul(id="posts")
+      for post in posts
+        li 
+          h2 #{post.title}
+          - var post_id = '/post/' + post.id
+          p 
+            a(href=post_id) post content 

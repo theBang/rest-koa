@@ -1,0 +1,23 @@
+doctype html
+html(lang="ru")
+  head
+    title New Post
+    link(href='/css/styles.css', rel='stylesheet')
+  body
+    h1 New Post
+    p Create a new post.
+    form(action = "/post" method = "POST")
+      input(
+        name = "title" 
+        type = "text" 
+        required 
+        placeholder = "Title"
+      ) 
+      br
+      textarea(
+        name = "content" 
+        required 
+        placeholder = "Content"
+      )
+      br
+      button(type = "Submit") Post
