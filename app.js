@@ -17,6 +17,7 @@ const router = new Router();
 const userScheme = new mongoose.Schema(
   {
     login: String,
+    email: String,
     password: String
   }, { versionKey: false }
 );
@@ -26,6 +27,7 @@ const User = mongoose.model('User', userScheme);
 const postScheme = new mongoose.Schema(
   {
     title: String,
+    user: String,
     content: String
   }, { versionKey: false }
 );
@@ -54,11 +56,11 @@ const checkSignIn = async (ctx, next) => {
    if(ctx.session.user){
       await next();     
    } else {
-      ctx.redirect('/login');
+      ctx.redirect('/login');	
    }
 };
 
-// List al Posts
+// List all Posts
 
 const ListPosts = async ctx => {
   const posts = await Post.find({});
@@ -82,6 +84,7 @@ const ShowPost = async ctx => {
 const CreatePost = async ctx => {
     const title = ctx.request.body.title;
     const content = ctx.request.body.content;
+    console.log(ctx.session);
     const post = new Post({
       title: title, 
       content: content
@@ -91,20 +94,17 @@ const CreatePost = async ctx => {
 };
 
 router
-  .get('/', ListPosts)
-  .get('/post/new', ShowAddPost)
-  .get('/post/:id', ShowPost)
-  .post('/post', CreatePost);
-/*
+  .get('/', checkSignIn, ListPosts)
+  .get('/post/new', checkSignIn, ShowAddPost)
+  .get('/post/:id', checkSignIn, ShowPost)
+  .post('/post', checkSignIn, CreatePost);
+
 router
   .get('/signup', async ctx => {
-    let sess = ctx.session;
     await ctx.render('signup', { 
       title: 'Sign up',
-      registered: sess.user ? 
-        true : false,
-      login: sess.user ? 
-        sess.user.login : undefined
+      registered: ctx.session.user ? true : false,
+      login: ctx.session.user ? ctx.session.user.login : undefined
     });
   })
   .post('/signup', async ctx =>  {
@@ -123,15 +123,13 @@ router
         password: pass
       }).save();
       ctx.session.user = req_user;
-      ctx.redirect('/protected');
+      ctx.redirect('/');
     }
   })
   .get('/login', async ctx => {
-    let sess = ctx.session;
     await ctx.render('login', { 
       title: 'Log in',
-      login: sess.user ? 
-        sess.user.login : undefined 
+      login: ctx.session.user ? ctx.session.user.login : undefined 
     });
   })
   .post('/login', async ctx => {
@@ -142,12 +140,12 @@ router
     if (user && user.login == login && 
         user.password == pass) {    
       ctx.session.user = req_user;
-      ctx.redirect('/protected');
+      ctx.redirect('/');
     }
     else {
       ctx.redirect('/signup');
     } 
-  })
+  })/*
   .get('/protected', 
       checkSignIn, 
       async ctx => {
@@ -155,18 +153,39 @@ router
       title: 'Protected Page',
       login: ctx.session.user.login
     });
-  })
+  })*/
   .get('/logout', async ctx => {
     ctx.session = null;
     ctx.redirect('/login');
   });
-*/
+
 app.use(router.routes());
 
 app.on('error', function(err) {
   if (process.env.NODE_ENV != 'test') {
     console.log('sent error %s to the cloud', err.message);
     console.log(err);
+  }
+});
+
+app.use(async function pageNotFound(ctx) {
+  // we need to explicitly set 404 here
+  // so that koa doesn't assign 200 on body=
+  ctx.status = 404;
+
+  switch (ctx.accepts('html', 'json')) {
+    case 'html':
+      ctx.type = 'html';
+      ctx.body = '<h1>404</h1>';
+      break;
+    case 'json':
+      ctx.body = {
+        message: 'Page Not Found'
+      };
+      break;
+    default:
+      ctx.type = 'text';
+      ctx.body = 'Page Not Found';
   }
 });
 
