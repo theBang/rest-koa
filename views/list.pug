@@ -4,6 +4,12 @@ html(lang="ru")
     title Posts
     link(href='/css/styles.css', rel='stylesheet')
   body
+    div(class="nav")
+      ul
+        li
+          a(href="/") Posts 
+        li(style="float:right")
+          a(href="/logout") Log out
     h1 Posts
     p You have 
       strong #{posts.length}! 
@@ -11,7 +17,6 @@ html(lang="ru")
     ul(id="posts")
       for post in posts
         li 
-          h2 #{post.title}
           - var post_id = '/post/' + post.id
-          p 
+          h2 title: #{post.title} - user: #{post.username} - 
             a(href=post_id) post content 

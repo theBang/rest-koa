@@ -4,6 +4,12 @@ html(lang="en")
     title #{title}
     link(href='/css/styles.css', rel='stylesheet')
   body
+    div(class="nav")
+      ul
+        li
+          a(href="/") Posts 
+        li(style="float:right")
+          a(href="/logout") Log out
     div
       if registered
         p #{login}, Вы уже вошли!  

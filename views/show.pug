@@ -4,5 +4,13 @@ html(lang="ru")
     title Post
     link(href='/css/styles.css', rel='stylesheet')
   body
-    h1 #{post.title}
+    div(class="nav")
+      ul
+        li
+          a(href="/") Posts 
+        li(style="float:right")
+          a(href="/logout") Log out
+    h1 Title: #{post.title}
+    h2 Content: 
     p #{post.content}
+    h3 User: #{post.username}

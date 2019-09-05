@@ -14,25 +14,27 @@ const { log } = console;
 const app = new Koa();
 const router = new Router();
 
-const userScheme = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     login: String,
     email: String,
-    password: String
+    password: String,
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post'}]
   }, { versionKey: false }
 );
 
-const User = mongoose.model('User', userScheme);
+const User = mongoose.model('User', userSchema);
 
-const postScheme = new mongoose.Schema(
+const postSchema = new mongoose.Schema(
   {
     title: String,
-    user: String,
-    content: String
+    username: String,
+    content: String,
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User'}
   }, { versionKey: false }
 );
 
-const Post = mongoose.model('Post', postScheme);
+const Post = mongoose.model('Post', postSchema);
 
 app.keys = ['some secret'];
 app
@@ -85,9 +87,12 @@ const CreatePost = async ctx => {
     const title = ctx.request.body.title;
     const content = ctx.request.body.content;
     console.log(ctx.session);
+    let author = await User.findOne({login: ctx.session.user.login});
     const post = new Post({
       title: title, 
-      content: content
+      username: author.login,
+      content: content,
+      author: author._id
     });
     await post.save();
     await ctx.redirect('/');
