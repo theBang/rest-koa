@@ -11,6 +11,9 @@ html(lang="ru")
         li(style="float:right")
           a(href="/logout") Log out
     h1 Title: #{post.title}
+    h4 Time: #{post.lastChangeAt}
     h2 Content: 
     p #{post.content}
-    h3 User: #{post.username}
+    - var user_id = '/user/' + post.author._id
+    h3 User: 
+      a(href=user_id) #{post.author.login}

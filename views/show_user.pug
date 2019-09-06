@@ -1,0 +1,24 @@
+doctype html
+html(lang="ru")
+  head
+    title Post
+    link(href='/css/styles.css', rel='stylesheet')
+  body
+    div(class="nav")
+      ul
+        li
+          a(href="/") Posts 
+        li(style="float:right")
+          a(href="/logout") Log out
+    h2 User: #{user.login}
+    h3 email: #{user.email}
+    h3 Posts: 
+    ul(id="posts")
+      for post in user.posts
+        li 
+          - var post_id = '/post/' + post.id
+          h2 title: #{post.title} 
+          h4 user: #{post.username} 
+          h5 time: #{post.lastChangeAt}
+          h3 
+            a(href=post_id) post content 

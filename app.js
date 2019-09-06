@@ -30,7 +30,8 @@ const postSchema = new mongoose.Schema(
     title: String,
     username: String,
     content: String,
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User'}
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    lastChangeAt: Date
   }, { versionKey: false }
 );
 
@@ -65,7 +66,7 @@ const checkSignIn = async (ctx, next) => {
 // List all Posts
 
 const ListPosts = async ctx => {
-  const posts = await Post.find({});
+  const posts = await Post.find({}).sort({ lastChangeAt: -1 }).populate('author');
   await ctx.render('list', { posts: posts })
 };
 
@@ -76,7 +77,7 @@ const ShowAddPost = async ctx => {
 const ShowPost = async ctx => {
   if(ctx.params.id) {
     const id = ctx.params.id;
-    const post = await Post.findById(id);
+    const post = await Post.findById(id).populate('author');
     await ctx.render('show', { post: post })
   } else {
     ctx.status(400);
@@ -90,12 +91,25 @@ const CreatePost = async ctx => {
     let author = await User.findOne({login: ctx.session.user.login});
     const post = new Post({
       title: title, 
-      username: author.login,
       content: content,
-      author: author._id
+      author: author._id,
+      lastChangeAt: Date.now()
     });
+    author.posts.push(post._id);
+    await author.save();
     await post.save();
     await ctx.redirect('/');
+};
+
+const ShowUser = async ctx => {
+  if(ctx.params.id) {
+    const id = ctx.params.id;
+    const user = await User.findById(id).populate({ path: 'posts', options: { sort: { lastChangeAt: -1 } } });
+    console.log(user.posts[0])
+    await ctx.render('show_user', { user: user })
+  } else {
+    ctx.status(400);
+  }
 };
 
 router
@@ -103,6 +117,9 @@ router
   .get('/post/new', checkSignIn, ShowAddPost)
   .get('/post/:id', checkSignIn, ShowPost)
   .post('/post', checkSignIn, CreatePost);
+
+router
+  .get('/user/:id', checkSignIn, ShowUser);
 
 router
   .get('/signup', async ctx => {

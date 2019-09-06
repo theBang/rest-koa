@@ -18,5 +18,10 @@ html(lang="ru")
       for post in posts
         li 
           - var post_id = '/post/' + post.id
-          h2 title: #{post.title} - user: #{post.username} - 
+          - var user_id = '/user/' + post.author._id
+          h2 title: #{post.title} 
+          h4 user: 
+            a(href=user_id) #{post.author.login} 
+          h5 time: #{post.lastChangeAt}
+          h3 
             a(href=post_id) post content 
