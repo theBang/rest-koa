@@ -8,12 +8,16 @@ html(lang="ru")
       ul
         li
           a(href="/") Posts 
+        li
+          a(href='/post/new') Add post 
         li(style="float:right")
           a(href="/logout") Log out
+        li(style="float:right")
+          a(href=user_ref) My profile
     h1 Title: #{post.title}
     h4 Time: #{post.lastChangeAt}
     h2 Content: 
     p #{post.content}
-    - var user_id = '/user/' + post.author._id
+    - var user_id = '/user/' + post.author.login
     h3 User: 
       a(href=user_id) #{post.author.login}

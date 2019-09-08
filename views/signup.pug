@@ -7,10 +7,10 @@ html(lang="en")
     div(class="nav")
       ul
         li
-          a(href="/") Posts 
+          a(href="/login") Log in 
         li(style="float:right")
-          a(href="/logout") Log out
-    div
+          a(href="/signup") Sign Up
+    div(class="login-form")
       if registered
         p #{login}, Вы уже вошли!  
       if login

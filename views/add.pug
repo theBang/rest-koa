@@ -8,8 +8,12 @@ html(lang="ru")
       ul
         li
           a(href="/") Posts 
+        li
+          a(href='/post/new') Add post 
         li(style="float:right")
           a(href="/logout") Log out
+        li(style="float:right")
+          a(href=user_ref) My profile
     h1 New Post
     p Create a new post.
     form(action = "/post" method = "POST" class = "post-form")
