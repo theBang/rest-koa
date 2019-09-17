@@ -12,9 +12,8 @@ html(lang="ru")
           a(href='/post/new') Add post 
         li(style="float:right")
           a(href="/logout") Log out
-        li(style="float:right")
-          - var user_ref = '/user/' + user.login
-          a(href=user_ref) My profile 
+        li(style="float:right")   
+          a(href=logged_user) My profile 
     h2 User: #{user.login}
     h3 email: #{user.email}
     h3 Posts: 

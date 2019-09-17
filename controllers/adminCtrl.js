@@ -1,10 +1,10 @@
-module.exports = (User) => {
-  const showSignUp = () => {
+module.exports = models => {
+  const User = models.User;
+
+  const showColls = () => {
     return async ctx => {
-      await ctx.render('signup', { 
-        title: 'Sign up',
-        registered: ctx.session.user ? true : false,
-        login: ctx.session.user ? ctx.session.user.login : undefined
+      await ctx.render('adminColls', { 
+        // Write code here
       });
     };
   }
@@ -14,7 +14,7 @@ module.exports = (User) => {
       let login = ctx.request.body.login;
       let pass = ctx.request.body.password;
       let req_user = {login: login};
-      let user = await User.findOne(req_user).exec();
+      let user = await User.findOne(req_user);
       if (user && user.login == login) {   
         await ctx.render('signup', {
           title: 'Sign up',
@@ -46,7 +46,7 @@ module.exports = (User) => {
       let login = ctx.request.body.login;
       let pass = ctx.request.body.password;
       let req_user = {login: login};
-      let user = await User.findOne(req_user).exec();
+      let user = await User.findOne(req_user);
       if (user && user.login == login && 
           user.password == pass) {    
         ctx.session.user = req_user;
@@ -65,23 +65,19 @@ module.exports = (User) => {
     };
   }
 
-  const checkSignIn = () => {
+  const checkIsAdmin = () => {
     return async (ctx, next) => {
-      if(ctx.session.user){
+      const { role } = await User.findOne({ login: ctx.session.user.login }).select('role').exec();
+      if(role == 'admin'){
         await next();     
       } else {
-        ctx.redirect('/login'); 
+        ctx.redirect('/'); 
       }
     };
   }
   
   return {
-    showSignUp: showSignUp,
-    createUser: createUser,
-    showLogIn: showLogIn,
-    logIn: logIn,
-    logOut: logOut,
-    checkSignIn: checkSignIn
+    checkIsAdmin: checkIsAdmin
   };
 
 };

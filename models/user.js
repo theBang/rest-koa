@@ -4,6 +4,7 @@ module.exports = mongoose =>
       login: String,
       email: String,
       password: String,
+      role: String,
       posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post'}]
     }, { versionKey: false }
   ));

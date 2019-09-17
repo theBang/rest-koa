@@ -10,11 +10,11 @@ const mongoose = require('mongoose');
 const models = require('./models')(mongoose);
 const controllers = require('./controllers')(models);
 
-const PORT = 3000;
-const { log } = console;
+const { PORT } = require('./config');
 
 const app = new Koa();
-const router = require('./routes')(controllers, new Router());
+const router = require('./routes')(controllers, Router);
+require('./db')(mongoose);
 
 app.keys = ['some secret'];
 app
@@ -32,10 +32,9 @@ app
     }
   })
   .use(views(path.join(__dirname, '/views'), { extension: 'pug' }));
-  
-// List all Posts
 
-app.use(router.routes());
+app
+  .use(router.routes());
 
 app.on('error', function(err) {
   if (process.env.NODE_ENV != 'test') {
@@ -44,9 +43,7 @@ app.on('error', function(err) {
   }
 });
 
-app.use(async function pageNotFound(ctx) {
-  // we need to explicitly set 404 here
-  // so that koa doesn't assign 200 on body=
+app.use(async ctx => {
   ctx.status = 404;
 
   switch (ctx.accepts('html', 'json')) {
@@ -67,22 +64,4 @@ app.use(async function pageNotFound(ctx) {
 
 if (!module.parent) 
   app.listen(process.env.PORT || PORT, () => 
-    log(`pid: ${process.pid}; port: ${process.env.PORT || PORT}`));
-
-const connString = 'mongodb://localhost:27017/restdb';
-mongoose.connect(connString, {useNewUrlParser: true});
-mongoose.connection.on('connected', () => {
-  log('Mongoose opened to ' + connString);
-});
-mongoose.connection.on('error', err => {
-  log('Mongoose error: ' + err);
-});
-mongoose.connection.on('disconnected', () => {
-  log('Mongoose disconnected');
-});
-process.on('SIGINT', () => {
-  mongoose.connection.close(() => {
-    log('Mongoose closed (app termination)');
-    process.exit(0);
-  });
-});
+    console.log(`pid: ${process.pid}; port: ${process.env.PORT || PORT}`));

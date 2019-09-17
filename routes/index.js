@@ -1,23 +1,35 @@
-module.exports = (ctrl, router) => {
+module.exports = (ctrl, Router) => {
+  const mainRouter = new Router();
+  const adminRouter = new Router();
+  const postRouter = new Router();
+
   const postCtrl = ctrl.postCtrl;
   const userCtrl = ctrl.userCtrl;
   const loginCtrl = ctrl.loginCtrl;
-  const checkSignIn = loginCtrl.checkSignIn;
+  const adminCtrl = ctrl.adminCtrl;
 
-  router
-    .get('/', checkSignIn, postCtrl.ListPosts)
-    .get('/post/new', checkSignIn, postCtrl.ShowAddPost)
-    .get('/post/:id', checkSignIn, postCtrl.ShowPost)
-    .post('/post', checkSignIn, postCtrl.CreatePost);
 
-  router
-    .get('/user/:login', checkSignIn, userCtrl.ShowUser);
+  mainRouter
+    .get('/', ctx => ctx.redirect('/post'));
 
-  router
-    .get('/signup', loginCtrl.ShowSignUp)
-    .post('/signup', loginCtrl.CreateUser)
-    .get('/login', loginCtrl.ShowLogIn)
-    .post('/login', loginCtrl.LogIn)/*
+  postRouter.use('/', loginCtrl.checkSignIn());
+
+  postRouter
+    .get('/', postCtrl.listPosts())
+    .get('/new', postCtrl.showAddPost())
+    .get('/:id', postCtrl.showPost())
+    .post('/', postCtrl.createPost());
+
+  mainRouter.use('/post', postRouter.routes(), postRouter.allowedMethods());
+
+  mainRouter
+    .get('/user/:login', loginCtrl.checkSignIn(), userCtrl.showUser());
+
+  mainRouter
+    .get('/signup', loginCtrl.showSignUp())
+    .post('/signup', loginCtrl.createUser())
+    .get('/login', loginCtrl.showLogIn())
+    .post('/login', loginCtrl.logIn())/*
     .get('/protected', 
         checkSignIn, 
         async ctx => {
@@ -26,7 +38,20 @@ module.exports = (ctrl, router) => {
         login: ctx.session.user.login
       });
     })*/
-    .get('/logout', checkSignIn, loginCtrl.LogOut);
-  return router;
+    .get('/logout', loginCtrl.checkSignIn(), loginCtrl.logOut());
+
+  adminRouter
+    .get('/', ctx => adminCtrl.showColls())
+
+  mainRouter
+    .use(
+      '/admin', 
+      loginCtrl.checkSignIn(), 
+      adminCtrl.checkIsAdmin(), 
+      adminRouter.routes(), 
+      adminRouter.allowedMethods()
+    );
+
+  return mainRouter;
 }
 
