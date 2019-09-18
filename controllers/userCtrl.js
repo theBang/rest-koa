@@ -6,7 +6,7 @@ module.exports = User => {
         const user = await User.findOne({ login: login }).populate({ path: 'posts', options: { sort: { lastChangeAt: -1 } } });
         await ctx.render('show_user', { 
           user: user,
-          logged_user: '/user/' + ctx.session.user.login 
+          user_ref: '/user/' + ctx.session.user.login 
         })
       } else {
         ctx.status(400);

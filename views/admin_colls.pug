@@ -1,0 +1,24 @@
+doctype html
+html(lang="ru")
+  head
+    title Posts
+    link(href='/css/styles.css', rel='stylesheet')
+  body
+    div(class="nav")
+      ul
+        li
+          a(href='/admin') DB Collections
+        li(style="float:right")
+          a(href="/logout") Log out
+        li(style="float:right")   
+          a(href=user_ref) My profile 
+    h1 Collections
+    p There are 
+      strong #{colls.length} collections 
+    ul(id="colls")
+      for coll in colls
+        - var ref = '/admin' + coll.url 
+        li 
+          h2 
+            a(href=ref) #{coll.name} 
+          

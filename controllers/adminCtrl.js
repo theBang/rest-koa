@@ -1,10 +1,41 @@
 module.exports = models => {
   const User = models.User;
+  const colls = new Array;
+
+  for (let key in models) {
+    let strKey = String(key);
+    colls.push({
+      url: '/' + strKey.toLowerCase(),
+      name: strKey
+    });        
+  }
 
   const showColls = () => {
     return async ctx => {
-      await ctx.render('adminColls', { 
-        // Write code here
+      await ctx.render('admin_colls', { 
+        colls: colls,
+        user_ref: '/user/' + ctx.session.user.login 
+      });
+    };
+  }
+
+  const showColl = (collName) => {
+    return async ctx => {
+      let model;
+      for (let key in models) {
+        if (collName == String(key))
+          model = models[key];
+      }
+
+      let objs = await model.find({});
+      for (let obj of objs) {
+        console.log(obj);
+      } 
+     
+      await ctx.render('admin_one_coll', { 
+        name: collName,
+        objs: objs,
+        user_ref: '/user/' + ctx.session.user.login 
       });
     };
   }
@@ -77,7 +108,10 @@ module.exports = models => {
   }
   
   return {
-    checkIsAdmin: checkIsAdmin
+    checkIsAdmin: checkIsAdmin,
+    showColls: showColls,
+    showColl: showColl,
+    colls: colls
   };
 
 };

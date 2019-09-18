@@ -41,7 +41,9 @@ module.exports = (ctrl, Router) => {
     .get('/logout', loginCtrl.checkSignIn(), loginCtrl.logOut());
 
   adminRouter
-    .get('/', ctx => adminCtrl.showColls())
+    .get('/', adminCtrl.showColls());
+
+  for(let coll of adminCtrl.colls) adminRouter.get(coll.url, adminCtrl.showColl(coll.name)); 
 
   mainRouter
     .use(
