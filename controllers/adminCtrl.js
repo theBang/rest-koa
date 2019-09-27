@@ -27,7 +27,7 @@ module.exports = models => {
           model = models[key];
       }
 
-      let objs = await model.find({});
+      let objs = await model.find({}).exec();
       for (let obj of objs) {
         console.log(obj);
       } 
@@ -38,6 +38,21 @@ module.exports = models => {
         user_ref: '/user/' + ctx.session.user.login 
       });
     };
+  }
+
+  const deleteDoc = (collName) => {
+    return async ctx => {
+      let model;
+      for (let key in models) {
+        if (collName == String(key))
+          model = models[key];
+      }
+      const obj = await model.findById(ctx.params.id);
+      const dbRes = await model.deleteOne(obj);
+      dbRes.ok ? 
+        ctx.body = { deleted_id: ctx.params.id} :
+        ctx.status = 400;
+    }
   }
   
   const createUser = () => {
@@ -77,7 +92,7 @@ module.exports = models => {
       let login = ctx.request.body.login;
       let pass = ctx.request.body.password;
       let req_user = {login: login};
-      let user = await User.findOne(req_user);
+      let user = await User.findOne(req_user).exec();
       if (user && user.login == login && 
           user.password == pass) {    
         ctx.session.user = req_user;
@@ -111,7 +126,8 @@ module.exports = models => {
     checkIsAdmin: checkIsAdmin,
     showColls: showColls,
     showColl: showColl,
-    colls: colls
+    colls: colls,
+    deleteDoc: deleteDoc
   };
 
 };

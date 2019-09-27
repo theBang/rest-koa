@@ -43,7 +43,10 @@ module.exports = (ctrl, Router) => {
   adminRouter
     .get('/', adminCtrl.showColls());
 
-  for(let coll of adminCtrl.colls) adminRouter.get(coll.url, adminCtrl.showColl(coll.name)); 
+  for(let coll of adminCtrl.colls) 
+    adminRouter
+      .get(coll.url, adminCtrl.showColl(coll.name))
+      .delete(`${coll.url}/:id`, adminCtrl.deleteDoc(coll.name)); 
 
   mainRouter
     .use(

@@ -16,5 +16,8 @@ html(lang="ru")
       strong #{name} 
     ul(id="objs")
       each obj in objs
-        li=obj
-          
+        li(data-id=obj._id)=obj
+          button(class='button', data-cmd='delete') Delete
+      else 
+        strong no #{name}s
+    script(src='/js/admin.js')
