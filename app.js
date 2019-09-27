@@ -25,6 +25,22 @@ app
   .use(async (ctx, next) => {
     try {
       await next();
+      if (ctx.status === 404) {
+        switch (ctx.accepts('html', 'json')) {
+          case 'html':
+            ctx.type = 'html';
+            ctx.body = '<h1>Page Not Found</h1>';
+            break;
+          case 'json':
+            ctx.body = {
+              message: 'Page Not Found'
+            };
+            break;
+          default:
+            ctx.type = 'text';
+            ctx.body = 'Page Not Found';
+        }
+      }
     } catch (err) {
       ctx.status = err.status || 500;
       ctx.body = err.message;
@@ -40,25 +56,6 @@ app.on('error', function(err) {
   if (process.env.NODE_ENV != 'test') {
     console.log('sent error %s to the cloud', err.message);
     console.log(err);
-  }
-});
-
-app.use(async ctx => {
-  ctx.status = 404;
-
-  switch (ctx.accepts('html', 'json')) {
-    case 'html':
-      ctx.type = 'html';
-      ctx.body = '<h1>404</h1>';
-      break;
-    case 'json':
-      ctx.body = {
-        message: 'Page Not Found'
-      };
-      break;
-    default:
-      ctx.type = 'text';
-      ctx.body = 'Page Not Found';
   }
 });
 
